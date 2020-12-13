@@ -1,0 +1,63 @@
+<html>
+
+<body>
+    <canvas id="dz41" width='1080' height='950' style='border:1px solid'> 
+    </canvas>
+
+    <canvas id="dz42" width='1080' height='950' style='border:1px solid'> 
+    </canvas>
+
+    <a href='#' id='btn' class='button' style='font-size: 200%'>clickhere</a>
+
+    <script type="text/javascript">
+        let canvas = document.getElementById('dz41');
+        let ctx = canvas.getContext('2d');
+        let canvas2 = document.getElementById('dz42');
+        let ctx2 = canvas2.getContext('2d');
+        let image = new Image();
+        image.src = 'bmwE36.jpg';
+
+        image.onload = function () {
+            ctx.drawImage(image, 0, 0);
+        };
+
+        function get_Gx(pixels, x, y) {
+            return (pixels[((y + 1) * canvas.width + x - 1) * 4] + 
+                (pixels[((y + 1) * canvas.width + x) * 4]) * 2 + 
+                pixels[((y + 1) * canvas.width + x + 1) * 4]) - 
+                (pixels[((y - 1) * canvas.width + x - 1) * 4] + 
+                (pixels[((y - 1) * canvas.width + x) * 4]) * 2 + 
+                pixels[((y - 1) * canvas.width + x + 1) * 4]);
+        };
+
+        function get_Gy(pixels, x, y) {
+            return (pixels[((y - 1) * canvas.width + x + 1) * 4] + 
+                (pixels[((y) * canvas.width + x + 1) * 4]) * 2 + 
+                pixels[((y + 1) * canvas.width + x + 1) * 4]) - 
+                (pixels[((y - 1) * canvas.width + x - 1) * 4] + 
+                (pixels[((y) * canvas.width + x - 1) * 4]) * 2 + 
+                pixels[((y + 1) * canvas.width + x - 1) * 4]);
+        };
+
+        function filter() {
+            let image_data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            let image_data2 = new ImageData(canvas.width,canvas.height);
+            let pixels = image_data.data;
+            for (let y = 1; y < canvas.height - 1; y++) {
+                for (let x = 1; x < canvas.width - 1; x++) {
+                    let G = Math.ceil(Math.sqrt(Math.pow(get_Gx(pixels, x, y), 2) + Math.pow(get_Gy(pixels, x, y), 2 )));
+                    for (let i = 0; i < 3; i++)
+                        image_data2.data[(y*canvas.width+x)*4 + i] = G;
+                    image_data2.data[(y*canvas.width+x)*4 + 3] = 255;
+                }
+            }
+            ctx2.putImageData(image_data2, 0, 0);
+        };
+
+        let btn = document.getElementById('btn');
+        btn.addEventListener('click', filter);
+    </script>
+
+</body>
+
+</html>
